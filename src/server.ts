@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server')
+import { ApolloServer, gql } from 'apollo-server'
 
 const typeDefs = gql`
 	type Book {
@@ -30,6 +30,8 @@ const server = new ApolloServer({
 	}
 })
 
-server.listen().then(({ url }: any) => {
+const startServer = async () => {
+	const { url } = await server.listen({ port: process.env.PORT || 4000 })
 	console.log(`🚀 Server ready at ${url}`)
-})
+}
+startServer()
