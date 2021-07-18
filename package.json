@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon 'src/server.ts' --exec 'ts-node' src/server.ts -e ts,graphql",
-		"build": "rm -rf ./dist && tsc",
-		"start": "npm run build && node dist/server.js"
+    "build": "rm -rf ./dist && tsc",
+    "start": "npm run build && node dist/server.js"
   },
   "keywords": [],
   "author": "",
