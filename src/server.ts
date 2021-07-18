@@ -22,7 +22,13 @@ const resolvers = {
 	}
 }
 
-const server = new ApolloServer({ typeDefs, resolvers})
+const server = new ApolloServer({ 
+	typeDefs, 
+	resolvers, 
+	cors: {
+		origin: "*" // TODO: restrict to only from Nexrtjs server
+	}
+})
 
 server.listen().then(({ url }: any) => {
 	console.log(`🚀 Server ready at ${url}`)
