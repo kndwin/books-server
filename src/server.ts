@@ -8,6 +8,11 @@ const typeDefs = gql`
 		id: String
 		title: String
 		author: String
+		description: String
+		publisher: String
+		publishedDate: String
+		pageCount: Int
+		imageLinks: String
 	}
 
 	type Query {
@@ -15,10 +20,28 @@ const typeDefs = gql`
 	}
 
 	type Mutation {
-		addBook(title: String, author: String): Book
-		deleteBook(id: String): Book
-		editBook(id: String, title: String, author: String): Book
+		addBook(
+			title: String, 
+			author: String, 
+			description: String, 
+			publisher: String
+			publishedDate: String
+			pageCount: Int
+			imageLink: String
+		): Book
 
+		deleteBook(id: String): Book
+
+		editBook(
+			id: String, 
+			title: String, 
+			author: String, 
+			description: String, 
+			publisher: String
+			publishedDate: String
+			pageCount: Int
+			imageLink: String
+		): Book
 	}
 `
 
@@ -30,14 +53,14 @@ const resolvers = {
 	},
 
 	Mutation: {
-		addBook: (_: ParentNode, { title, author }: { title: string, author: string}) => {
-			return prisma.book.create({ data: { title, author} })
+		addBook: (_: ParentNode, args: { data: Book }) => {
+			return prisma.book.create({ data: args.data })
 		},
 		deleteBook: (_: ParentNode, { id }: { id: string}) => {
 			return prisma.book.delete({ where: { id }})
 		},
-		editBook: (_: ParentNode, { id, title, author}: {id: string, title?: string, author?: string}) => {
-			return prisma.book.update({ where: {id}, data: {title, author}})
+		editBook: (_: ParentNode, args: { data: Book }) => {
+			return prisma.book.update({ where: { id: args.data.id }, data: args.data})
 		}
 	}
 }
@@ -46,7 +69,7 @@ const server = new ApolloServer({
 	typeDefs, 
 	resolvers, 
 	cors: {
-		origin: "*" // TODO: restrict to only from Nexrtjs server
+		origin: "*" // TODO: restrict to only from Nextjs server
 	}
 })
 
