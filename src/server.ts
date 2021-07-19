@@ -12,7 +12,7 @@ const typeDefs = gql`
 		publisher: String
 		publishedDate: String
 		pageCount: Int
-		imageLinks: String
+		imageLink: String
 	}
 
 	type Query {
@@ -30,10 +30,10 @@ const typeDefs = gql`
 			imageLink: String
 		): Book
 
-		deleteBook(id: String): Book
+		deleteBook(id: String!): Book
 
 		editBook(
-			id: String, 
+			id: String!, 
 			title: String, 
 			author: String, 
 			description: String, 
@@ -53,14 +53,35 @@ const resolvers = {
 	},
 
 	Mutation: {
-		addBook: (_: ParentNode, args: { data: Book }) => {
-			return prisma.book.create({ data: args.data })
+		addBook: (_: ParentNode, args:  {
+			id: string, 
+			title: string, 
+			author: string, 
+			description: string, 
+			publisher: string
+			publishedDate: string
+			pageCount: number
+			imageLink: string
+		}) => {
+			return prisma.book.create({ data: args })
 		},
 		deleteBook: (_: ParentNode, { id }: { id: string}) => {
 			return prisma.book.delete({ where: { id }})
 		},
-		editBook: (_: ParentNode, args: { data: Book }) => {
-			return prisma.book.update({ where: { id: args.data.id }, data: args.data})
+		editBook: (_: ParentNode, args: { 
+			id: string, 
+			title: string, 
+			author: string, 
+			description: string, 
+			publisher: string
+			publishedDate: string
+			pageCount: number
+			imageLink: string
+		}) => {
+			return prisma.book.update({ 
+				where: { id: args.id }, 
+				data: args
+			})
 		}
 	}
 }

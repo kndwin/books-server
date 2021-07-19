@@ -18,5 +18,5 @@ model Book {
 	publisher String
 	publishedDate String
 	pageCount Int
-	imageLinks String
+	imageLink String
 }
