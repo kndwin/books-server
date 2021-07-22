@@ -17,9 +17,12 @@ export const resolvers = {
     deleteBook: (_: ParentNode, { id }: { id: string }) => {
       return prisma.book.delete({ where: { id } });
     },
-    editBook: (_: ParentNode, { input }: { input: BookInput }) => {
+    editBook: (
+      _: ParentNode,
+      { id, input }: { id: string; input: BookInput }
+    ) => {
       return prisma.book.update({
-        where: { id: input.id },
+        where: { id },
         data: input,
       });
     },
