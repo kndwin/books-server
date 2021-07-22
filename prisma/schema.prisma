@@ -14,9 +14,10 @@ model Book {
 	id String @id @default(cuid())
 	title String
 	author String
-	description String
-	publisher String
-	publishedDate String
-	pageCount Int
-	imageLink String
+	description String?
+	publisher String?
+	publishedDate String?
+	pageCount Int?
+	imageLink String?
+	amount Int
 }
