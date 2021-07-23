@@ -2,7 +2,7 @@ import { gql } from "apollo-server";
 
 const shareBookFields = `# gql
 	title: String
-	author: String
+	authors: String
 	description: String
 	publisher: String
 	publishedDate: String

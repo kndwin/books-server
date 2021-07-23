@@ -1,7 +1,7 @@
 export type BookInput = {
   id: string;
   title: string;
-  author: string;
+  authors: string;
   description?: string;
   publisher?: string;
   publishedDate?: string;
