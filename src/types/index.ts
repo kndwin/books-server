@@ -9,3 +9,9 @@ export type BookInput = {
   imageLink?: string;
   amount: number;
 };
+
+export type UserInput = {
+  name: string;
+  email: string;
+  image: string;
+};
