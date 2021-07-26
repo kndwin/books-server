@@ -29,16 +29,15 @@ export const resolvers = {
     },
     authorize: async (_: ParentNode, { token }: { token: string }) => {
       try {
-        // get google's public key
-        //        const publicKey = await res.json();
-        //        console.log(publicKey.keys[0]);
+        // if the kids rotate and can't figure out how, might need to
+        // use Google's auth api
+        // https://developers.google.com/identity/sign-in/web/backend-auth#verify-the-integrity-of-the-id-token
         var jwksClient = require("jwks-rsa");
         var client = jwksClient({
           jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
         });
-        const res = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-        const json = await res.json();
-        const kid = json.keys[1].kid;
+        const decoded = jwt.decode(token, { complete: true });
+        const kid = decoded?.header.kid;
         const key = await client.getSigningKey(kid);
         const signingKey = key.getPublicKey();
         const verified = jwt.verify(token, signingKey); // verify JWT token
