@@ -1,22 +1,34 @@
 import { gql } from "apollo-server";
 import { prisma } from "../../lib/prisma";
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
+import jwksClient from "jwks-rsa";
+import { UserInput } from "types";
 
-export const typeDefs = gql`
-  type User {
-    id: String
+const sharedUserFields = `
     name: String
     email: String
     image: String
     role: String
+`;
+export const typeDefs = gql`
+	type User {
+		id: String
+		${sharedUserFields}
+	}
+
+	input UserInput {
+		${sharedUserFields}
+	}
+
+	extend type Query {
+		me(email: String): User
+		all: [User]
   }
 
-  extend type Query {
-    me(email: String): User
+	extend type Mutation {
     authorize(token: String): User
-    all: [User]
-  }
+		updateUser(id: String!, user: UserInput): User
+	}
 `;
 
 export const resolvers = {
@@ -27,12 +39,11 @@ export const resolvers = {
     all: () => {
       return prisma.user.findMany();
     },
+  },
+  Mutation: {
     authorize: async (_: ParentNode, { token }: { token: string }) => {
+      // TODO: update apollo server context
       try {
-        // if the kids rotate and can't figure out how, might need to
-        // use Google's auth api
-        // https://developers.google.com/identity/sign-in/web/backend-auth#verify-the-integrity-of-the-id-token
-        var jwksClient = require("jwks-rsa");
         var client = jwksClient({
           jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
         });
@@ -40,12 +51,21 @@ export const resolvers = {
         const kid = decoded?.header.kid;
         const key = await client.getSigningKey(kid);
         const signingKey = key.getPublicKey();
-        const verified = jwt.verify(token, signingKey); // verify JWT token
+        const verified = jwt.verify(token, signingKey);
         // @ts-ignore
         return prisma.user.findFirst({ where: { email: verified.email } });
       } catch (err) {
         return err;
       }
+    },
+    updateUser: async (
+      _: ParentNode,
+      { id, user }: { id: string; user: UserInput }
+    ) => {
+      return prisma.user.update({
+        where: { id },
+        data: user,
+      });
     },
   },
 };
