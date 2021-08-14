@@ -10,8 +10,8 @@ export type BookInput = {
   amount: number;
 };
 
-export type UserInput = {
+export interface UserInput {
   name: string;
   email: string;
   image: string;
-};
+}

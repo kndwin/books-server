@@ -11,25 +11,29 @@ const server = new ApolloServer({
     origin: "*", // TODO: restrict to only from Nextjs server
   },
   context: async ({ req }) => {
-    const token = req.headers.bearer as string;
-    var client = jwksClient({
-      jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
-    });
-    const decoded = jwt.decode(token, { complete: true });
-    const kid = decoded?.header.kid;
-    const key = await client.getSigningKey(kid);
-    const signingKey = key.getPublicKey();
-    const verified = jwt.verify(token, signingKey);
-    const authorizedUser = prisma.user.findFirst({
-      // @ts-ignore
-      where: { email: verified.email },
-    });
-    if (!authorizedUser) {
-      throw new AuthenticationError("You must be signed in");
+    if (process.env.NODE_ENV === "development") {
+      // if dev, turn off auth for ease of development
+    } else {
+      const token = req.headers.authorization as string;
+      var client = jwksClient({
+        jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
+      });
+      const decoded = jwt.decode(token, { complete: true });
+      const kid = decoded?.header.kid;
+      const key = await client.getSigningKey(kid);
+      const signingKey = key.getPublicKey();
+      const verified = jwt.verify(token, signingKey);
+      const authorizedUser = prisma.user.findFirst({
+        // @ts-ignore
+        where: { email: verified.email },
+      });
+      if (!authorizedUser) {
+        throw new AuthenticationError("You must be signed in");
+      }
+      return {
+        authorizedUser,
+      };
     }
-    return {
-      authorizedUser,
-    };
   },
 });
 

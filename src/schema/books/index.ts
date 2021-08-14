@@ -11,6 +11,7 @@ const sharedBookFields = `# gql
 	pageCount: Int
 	imageLink: String
 	amount: Int
+	userId: String
 `;
 
 export const typeDefs = gql`
@@ -25,6 +26,7 @@ export const typeDefs = gql`
 
   extend type Query {
     books: [Book]
+		booksFrom(userId: String): [Book]
   }
 
   type Mutation {
@@ -39,8 +41,12 @@ export const resolvers = {
     books: () => {
       return prisma.book.findMany();
     },
+    booksFrom: async (_: ParentNode, { userId }: { userId: string }) => {
+      const booksFromUser = await prisma.book.findMany({ where: { userId } });
+      console.log({ userId, booksFromUser });
+      return booksFromUser;
+    },
   },
-
   Mutation: {
     addBook: (_: ParentNode, { input }: { input: BookInput }) => {
       return prisma.book.create({ data: input });

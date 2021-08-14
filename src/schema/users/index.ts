@@ -2,13 +2,26 @@ import { gql } from "apollo-server";
 import { UserInput } from "types";
 import { prisma } from "../../lib/prisma";
 
+enum UserRole {
+  "USER",
+  "ADMIN",
+}
+
+interface UserInputWithRole extends UserInput {
+  role: UserRole;
+}
+
 const sharedUserFields = `
     name: String
     email: String
     image: String
-    role: String
+    role: UserRole
 `;
 export const typeDefs = gql`
+	enum UserRole {
+		USER
+		ADMIN
+	}
 	type User {
 		id: String
 		${sharedUserFields}
@@ -21,6 +34,7 @@ export const typeDefs = gql`
 	extend type Query {
 		me(email: String): User
 		all: [User]
+		usersWith(user: UserInput): [User]
   }
 
 	extend type Mutation {
@@ -38,16 +52,33 @@ export const resolvers = {
     all: () => {
       return prisma.user.findMany();
     },
+    usersWith: async (_: ParentNode, { user }: any) => {
+      const { email, name, image, role } = user;
+      return prisma.user.findMany({
+        where: {
+          OR: [
+            { email: { contains: email } },
+            { name: { contains: name } },
+            { image: { contains: image } },
+            // @ts-ignore
+            { role: { in: [role] } },
+          ],
+        },
+      });
+    },
   },
   Mutation: {
     updateUser: async (
       _: ParentNode,
       { id, user }: { id: string; user: UserInput }
     ) => {
-      return prisma.user.update({
+      console.log({ id, user });
+      const userFound = await prisma.user.update({
         where: { id },
         data: user,
       });
+      console.log({ userFound });
+      return userFound;
     },
   },
 };
